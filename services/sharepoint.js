@@ -1,6 +1,21 @@
 const { Client } = require("@microsoft/microsoft-graph-client");
 require("isomorphic-fetch");
 require("dotenv").config();
+
+const requiredEnv = [
+  'AZURE_TENANT_ID',
+  'AZURE_CLIENT_ID',
+  'AZURE_CLIENT_SECRET',
+  'SHAREPOINT_SITE_ID',
+  'SHAREPOINT_FOLDER_PATH'
+];
+
+for (const key of requiredEnv) {
+  if (!process.env[key]) {
+    throw new Error(`❌ Missing environment variable: ${key}`);
+  }
+}
+
 const { ClientSecretCredential } = require("@azure/identity");
 
 async function getGraphClient() {
