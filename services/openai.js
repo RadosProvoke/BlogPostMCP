@@ -5,6 +5,11 @@ const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
 const key = process.env.AZURE_OPENAI_KEY;
 const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
 
+// ✅ Fallback check for missing env variables
+if (!endpoint || !key || !deployment) {
+  throw new Error("❌ Missing required Azure OpenAI environment variables. Check .env or Azure App Service Configuration.");
+}
+
 const client = new OpenAIClient(endpoint, new AzureKeyCredential(key));
 
 async function generateBlogContent(transcript) {
