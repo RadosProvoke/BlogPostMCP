@@ -10,23 +10,16 @@ paths:
   /generate-blogpost:
     post:
       consumes:
-        - application/json
+        - multipart/form-data
       produces:
         - application/json
       operationId: generateBlogPost
       summary: Generate a blog post from transcript
       parameters:
-        - name: filename
-          in: body
+        - name: transcript
+          in: formData
+          type: file
           required: true
-          schema:
-            type: object
-            properties:
-              name:
-                type: string
-              content:
-                type: string
-                format: byte   # base64 encoded
       responses:
         200:
           description: Blog post generated
