@@ -2,7 +2,6 @@ swagger: "2.0"
 info:
   title: BlogPostMCP
   version: 1.0.0
-  description: "Generate a blog post in .docx format from a transcript file and upload to SharePoint"
 host: blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
 basePath: /
 schemes:
@@ -11,16 +10,23 @@ paths:
   /generate-blogpost:
     post:
       consumes:
-        - multipart/form-data
+        - application/json
       produces:
         - application/json
       operationId: generateBlogPost
       summary: Generate a blog post from transcript
       parameters:
-        - name: transcript
-          in: formData
-          type: file
+        - name: filename
+          in: body
           required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              content:
+                type: string
+                format: byte   # base64 encoded
       responses:
         200:
           description: Blog post generated
