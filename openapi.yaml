@@ -1,0 +1,32 @@
+swagger: "2.0"
+info:
+  title: BlogPostMCP
+  version: 1.0.0
+host: blogpostmcp.azurewebsites.net
+basePath: /
+schemes:
+  - https
+paths:
+  /generate-blogpost:
+    post:
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      operationId: generateBlogPost
+      summary: Generate a blog post from transcript
+      parameters:
+        - name: transcript
+          in: formData
+          type: file
+          required: true
+      responses:
+        200:
+          description: Blog post generated
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              url:
+                type: string
