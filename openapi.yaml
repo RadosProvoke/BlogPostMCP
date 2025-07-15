@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   title: BlogPostMCP
   version: 1.0.0
-host: blogpostmcp.azurewebsites.net
+host: blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
 basePath: /
 schemes:
   - https
