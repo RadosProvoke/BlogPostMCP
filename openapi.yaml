@@ -9,12 +9,12 @@ schemes:
 paths:
   /generate-blogpost:
     post:
+      summary: Generate a blog post from transcript
+      operationId: generateBlogPost
       consumes:
         - multipart/form-data
       produces:
         - application/json
-      operationId: generateBlogPost
-      summary: Generate a blog post from transcript
       parameters:
         - name: transcript
           in: formData
