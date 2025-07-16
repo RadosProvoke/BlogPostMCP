@@ -2,8 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const dotenv = require('dotenv');
 const { generateBlogContent } = require('./services/openai');
-const { createDocx } = require('./services/docxGenerator');
-const { uploadToSharePoint } = require('./services/sharepoint');
+const { createDocxFromBuffer } = require('./services/docxGenerator');
+const { uploadToSharePoint, downloadTemplate } = require('./services/sharepoint');
 const { extractTextFromTranscript } = require('./utils/parseTranscript');
 
 dotenv.config();
@@ -12,16 +12,12 @@ const upload = multer();
 
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
-    const buffer = req.file.buffer;
-    const filename = req.file.originalname;
-    const transcript = extractTextFromTranscript(buffer, filename);
-
-    const blogContent = await generateBlogContent(transcript);
-    const docBuffer = await createDocx(blogContent);
-
-    const sharepointURL = await uploadToSharePoint(docBuffer, blogContent.title);
-    res.json({ title: blogContent.title, url: sharepointURL });
-
+    const transcript = extractTextFromTranscript(req.file.buffer, req.file.originalname);
+    const blog = await generateBlogContent(transcript);
+    const templateBuffer = await downloadTemplate();
+    const docx = await createDocxFromBuffer(templateBuffer, blog);
+    const sharepointUrl = await uploadToSharePoint(docx, blog.title);
+    res.json({ title: blog.title, url: sharepointUrl });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
@@ -29,4 +25,4 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`MCP server running on ${port}`));
+app.listen(port, () => console.log(`✅ MCP server running on ${port}`));
