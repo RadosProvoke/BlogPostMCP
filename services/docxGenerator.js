@@ -1,22 +1,21 @@
-const { Document, Packer, Paragraph, HeadingLevel } = require("docx");
+const PizZip = require('pizzip');
+const Docxtemplater = require('docxtemplater');
 
-async function createDocx({ title, body }) {
-  const doc = new Document({
-    sections: [{
-      properties: {},
-      children: [
-        new Paragraph({
-          text: title,
-          heading: HeadingLevel.HEADING_1
-        }),
-        ...body.split('\n').map(
-          line => new Paragraph(line.trim())
-        )
-      ]
-    }]
+async function createDocxFromBuffer(templateBuffer, { title, body }) {
+  const zip = new PizZip(templateBuffer);
+  const doc = new Docxtemplater(zip, {
+    paragraphLoop: true,
+    linebreaks: true
   });
 
-  return await Packer.toBuffer(doc);
+  doc.setData({
+    TITLE: title,
+    CONTENT: body
+  });
+
+  doc.render();
+
+  return Buffer.from(doc.getZip().generate({ type: 'nodebuffer' }));
 }
 
-module.exports = { createDocx };
+module.exports = { createDocxFromBuffer };
