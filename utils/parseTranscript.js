@@ -6,11 +6,13 @@ function extractTextFromTranscript(buffer, filename) {
     return content;
   }
 
-  // Remove timestamps and indexes for .srt or .vtt
   if (ext === 'srt' || ext === 'vtt') {
     return content
       .split('\n')
-      .filter(line => !line.match(/^\d+$/) && !line.match(/\d{2}:\d{2}:\d{2}/))
+      .filter(line =>
+        !line.match(/^\d+$/) &&             // Brojevi linija
+        !line.match(/\d{2}:\d{2}:\d{2}/)    // Timestampovi
+      )
       .join(' ')
       .replace(/\s+/g, ' ')
       .trim();
