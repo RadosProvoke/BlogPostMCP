@@ -35,6 +35,8 @@ async function uploadToSharePoint(fileBuffer, filename) {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const fullName = `${filename}-${timestamp}.docx`;
   const uploadPath = `/sites/${siteId}/drive/root:${folderPath}/${fullName}:/content`;
+  
+  console.log("Upload path:", uploadPath);
 
   const result = await client.api(uploadPath).put(fileBuffer);
   return result.webUrl;
