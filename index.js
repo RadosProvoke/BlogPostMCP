@@ -20,7 +20,7 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     res.json({ title: blog.title, url: sharepointUrl });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 
