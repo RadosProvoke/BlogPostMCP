@@ -25,10 +25,8 @@ async function downloadTemplate() {
     const siteId = process.env.SHAREPOINT_SITE_ID;
     const templatePath = process.env.SHAREPOINT_TEMPLATE_PATH;
 
-    // Log paths for debug
     console.log("Downloading template from:", `/sites/${siteId}/drive/root:${templatePath}`);
 
-    // Get the download URL
     const downloadUrlResp = await client.api(`/sites/${siteId}/drive/root:${templatePath}`).get();
 
     const downloadUrl = downloadUrlResp["@microsoft.graph.downloadUrl"];
@@ -36,16 +34,17 @@ async function downloadTemplate() {
       throw new Error("Download URL not found in response");
     }
 
-    // Fetch the file content from downloadUrl
     const response = await fetch(downloadUrl);
     if (!response.ok) {
       throw new Error(`Failed to fetch template file: ${response.status} ${response.statusText}`);
     }
 
-    const buffer = Buffer.from(await response.arrayBuffer());
-    return buffer;
+    return Buffer.from(await response.arrayBuffer());
   } catch (error) {
-    console.error("Error downloading template from SharePoint:", error);
+    if (error.responseBody) {
+      console.error("Graph API error response:", error.responseBody);
+    }
+    console.error("Error downloading template:", error);
     throw error;
   }
 }
@@ -59,8 +58,6 @@ async function uploadToSharePoint(fileBuffer, filename) {
 
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const fullName = `${filename}-${timestamp}.docx`;
-
-    // Compose upload path correctly: no query params, no UI URLs, just drive API path
     const uploadPath = `/sites/${siteId}/drive/root:${folderPath}/${fullName}:/content`;
 
     console.log("Uploading to SharePoint path:", uploadPath);
@@ -73,13 +70,10 @@ async function uploadToSharePoint(fileBuffer, filename) {
 
     return result.webUrl;
   } catch (error) {
-    console.error("Error uploading file to SharePoint:", error);
-
-    // Optional: inspect error.responseBody if present for more details
     if (error.responseBody) {
-      console.error("Graph API response body:", error.responseBody);
+      console.error("Graph API error response:", error.responseBody);
     }
-
+    console.error("Error uploading file:", error);
     throw error;
   }
 }
