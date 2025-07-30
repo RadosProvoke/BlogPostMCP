@@ -23,19 +23,20 @@ async function createDocx({ title, body }) {
   });
 
   try {
-    // Generišemo dokument sa popunjenim podacima
-    doc.render();
-  } catch (error) {
-    // Obrada greške prilikom renderovanja
-    const e = {
-      message: error.message,
-      name: error.name,
-      stack: error.stack,
-      properties: error.properties,
-    };
-    console.error(JSON.stringify({ error: e }));
-    throw error;
+  const doc = new Docxtemplater(content);
+  doc.compile();
+} catch (error) {
+  if (error.properties && error.properties.errors instanceof Array) {
+    const errors = error.properties.errors
+      .map(e => e.properties.explanation)
+      .join("\n");
+    console.error("Errors:", errors);
+  } else {
+    console.error(error);
   }
+  throw error;
+}
+
 
   // Dobijamo generisani buffer dokumenta
   const buf = doc.getZip().generate({ type: 'nodebuffer' });
