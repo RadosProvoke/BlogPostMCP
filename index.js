@@ -22,7 +22,7 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     console.log("Blog content:", blogContent); // blog content
 
     // creating .docx file with field names 
-    const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.content });
+    const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
 
     // Upload to Blob storage
     const blobURL = await uploadToBlob(docBuffer, blogContent.title);
