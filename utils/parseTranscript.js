@@ -10,8 +10,8 @@ function extractTextFromTranscript(buffer, filename) {
     return content
       .split('\n')
       .filter(line =>
-        !line.match(/^\d+$/) &&             // Brojevi linija
-        !line.match(/\d{2}:\d{2}:\d{2}/)    // Timestampovi
+        !line.match(/^\d+$/) &&             // number of lines
+        !line.match(/\d{2}:\d{2}:\d{2}/)    // timestamps
       )
       .join(' ')
       .replace(/\s+/g, ' ')
