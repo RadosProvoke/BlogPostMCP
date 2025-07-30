@@ -14,10 +14,10 @@ async function replacePlaceholders(templateBuffer, data) {
 
 module.exports = { replacePlaceholders };
 */
-console.log(data)
 const { createReport } = require('docx-templates');
 
 async function replacePlaceholders(templateBuffer, data) {
+  console.log(data);
   return await createReport({
     template: templateBuffer,
     data,
