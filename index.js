@@ -24,7 +24,7 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     const blogContent = await generateBlogContent(transcript);
 
     console.log("Generated blog title:", blogContent.title);
-    console.log("Generated blog body (first 500 chars):", blogContent.body.slice(0, 500));
+    console.log("Generated blog body:", blogContent.body);
 
     // creating .docx file with field names 
     const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
