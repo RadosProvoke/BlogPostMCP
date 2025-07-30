@@ -34,4 +34,4 @@ async function createDocx({ title, body }) {
   return filledBuffer;
 }
 
-module.exports = { createDocxFromBuffer };
+module.exports = { createDocx };
