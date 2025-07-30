@@ -1,4 +1,4 @@
-const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob');
+const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob'); 
 require('dotenv').config();
 
 async function uploadToBlob(fileBuffer, filename) {
@@ -8,7 +8,6 @@ async function uploadToBlob(fileBuffer, filename) {
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const fullName = `${filename}-${timestamp}.docx`;
-  const blockBlobClient = containerClient.getBlockBlobClient(fullName);
 
   const credential = new StorageSharedKeyCredential(account, key);
   const blobServiceClient = new BlobServiceClient(
@@ -18,7 +17,8 @@ async function uploadToBlob(fileBuffer, filename) {
 
   const containerClient = blobServiceClient.getContainerClient(containerName);
   await containerClient.createIfNotExists();
-  const blockBlobClient = containerClient.getBlockBlobClient(filename);
+
+  const blockBlobClient = containerClient.getBlockBlobClient(fullName);
   await blockBlobClient.uploadData(fileBuffer);
 
   return blockBlobClient.url;
