@@ -9,9 +9,11 @@ function extractTextFromTranscript(buffer, filename) {
   if (ext === 'srt' || ext === 'vtt') {
     return content
       .split('\n')
+      .map(line => line.trim())
       .filter(line =>
-        !line.match(/^\d+$/) &&             // number of lines
-        !line.match(/\d{2}:\d{2}:\d{2}/)    // timestamps
+        line !== '' &&
+        !line.match(/^\d+$/) &&                        // redni brojevi
+        !line.match(/\d{2}:\d{2}:\d{2}[.,]\d{3}/)     // timestamp sa ms
       )
       .join(' ')
       .replace(/\s+/g, ' ')
