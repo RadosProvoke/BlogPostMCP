@@ -1,21 +1,26 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
-const createReport = require('docx-templates').createReport;
+const { createDocx } = require('./services/docxGenerator');
 
-(async () => {
-  const templatePath = path.join(__dirname, 'templates', 'blog_template.docx');
-  const outputPath = path.join(__dirname, 'output.docx');
+async function test() {
+  try {
+    // Primer dummy podataka za test
+    const blogContent = {
+      title: 'Test Blog Title',
+      body: 'Ovo je testni sadržaj koji treba da zameni {{CONTENT}} u šablonu.'
+    };
 
-  const templateBuffer = fs.readFileSync(templatePath);
+    const buffer = await createDocx(blogContent);
 
-  const result = await createReport({
-    template: templateBuffer,
-    data: {
-      TITLE: 'Test Blog Title',
-      CONTENT: 'This is a test blog content generated locally to verify placeholder replacement.'
-    }
-  });
+    // Upisujemo generisani .docx u fajl da proverimo rezultat
+    const outputPath = path.join(__dirname, 'output.docx');
+    fs.writeFileSync(outputPath, buffer);
 
-  fs.writeFileSync(outputPath, result);
-  console.log('✅ output.docx je uspešno kreiran.');
-})();
+    console.log('Fajl je uspešno generisan:', outputPath);
+  } catch (err) {
+    console.error('Greška pri generisanju .docx fajla:', err);
+  }
+}
+
+test();
