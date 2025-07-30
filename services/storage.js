@@ -6,6 +6,10 @@ async function uploadToBlob(fileBuffer, filename) {
   const key = process.env.AZURE_STORAGE_ACCOUNT_KEY;
   const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME;
 
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const fullName = `${filename}-${timestamp}.docx`;
+  const blockBlobClient = containerClient.getBlockBlobClient(fullName);
+
   const credential = new StorageSharedKeyCredential(account, key);
   const blobServiceClient = new BlobServiceClient(
     `https://${account}.blob.core.windows.net`,
