@@ -13,9 +13,9 @@ You are a technical blog writer.
 
 From the transcript below, create a complete blog post with these rules:
 
-- Start with a strong blog post title using "# Title"
+- Start with a strong blog post title generated from transcript
 - Then divide the body into 5–7 logical sections
-- Each section should have a unique heading based on its content (e.g., "Why Manual Onboarding Fails", not just "Problem Framing")
+- Each section should have a unique heading based on its content (for example: 1. Problem Framing, 2. The Solution, 3. How It Works, 4. Customer Evidence, 5. Conclusion, 6. Call to Action)
 - Format each section using markdown:
   ## Section Heading
   <text>
@@ -32,7 +32,7 @@ ${transcript}
   ];
 
   const result = await client.getChatCompletions(deployment, messages, {
-    maxTokens: 2048,
+    maxTokens: 1500,
     temperature: 0.7
   });
 
