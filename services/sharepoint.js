@@ -11,6 +11,8 @@ async function getGraphClient() {
   );
   const token = await credential.getToken("https://graph.microsoft.com/.default");
 
+  console.log("Token: ", token.token);
+
   return Client.init({
     authProvider: (done) => {
       done(null, token.token);
