@@ -13,14 +13,14 @@ function extractTextFromTranscript(buffer, filename) {
       .filter(line =>
         line !== '' &&
         !line.match(/^\d+$/) &&                        // serial numbers
-        !line.match(/\d{2}:\d{2}:\d{2}[.,]\d{3}/)     // timestamps with ms
+        !line.match(/\d{2}:\d{2}:\d{2}[.,]\d{3}/)     // timestamps
       )
       .join(' ')
       .replace(/\s+/g, ' ')
       .trim();
   }
 
-  throw new Error(`Unsupported file type: ${ext}`);
+  throw new Error(`Unsupported file type: ${ext} in file ${filename}`);
 }
 
 module.exports = { extractTextFromTranscript };
