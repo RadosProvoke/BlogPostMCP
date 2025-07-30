@@ -12,14 +12,19 @@ const app = express();
 const upload = multer();
 
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
+  
   try {
     const buffer = req.file.buffer;
     const filename = req.file.originalname;
     const transcript = extractTextFromTranscript(buffer, filename);
 
+    console.log("Transcript extracted:", transcript.slice(0, 500)); // samo prvih 500 karaktera za pregled
+
     // generating blog post content
     const blogContent = await generateBlogContent(transcript);
-    console.log("Blog content:", blogContent); // blog content
+
+    console.log("Generated blog title:", blogContent.title);
+    console.log("Generated blog body (first 500 chars):", blogContent.body.slice(0, 500));
 
     // creating .docx file with field names 
     const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
@@ -27,14 +32,17 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     // Upload to Blob storage
     const blobURL = await uploadToBlob(docBuffer, blogContent.title);
 
+    console.log("File uploaded to Blob Storage. URL:", blobURL);
+
     // sending URL-a to the client
     res.json({ title: blogContent.title, url: blobURL });
 
   } catch (err) {
-    console.error(err);
+    console.error("Error during blog generation:", err);
     res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
+
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`MCP server running on ${port}`));
