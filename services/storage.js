@@ -6,6 +6,7 @@ async function uploadToBlob(fileBuffer, filename) {
   const key = process.env.AZURE_STORAGE_ACCOUNT_KEY;
   const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME;
 
+  // Timestamp za unikatan naziv fajla (izbegavaj dvotačke i tačke)
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const fullName = `${filename}-${timestamp}.docx`;
 
@@ -21,7 +22,7 @@ async function uploadToBlob(fileBuffer, filename) {
   const blockBlobClient = containerClient.getBlockBlobClient(fullName);
   await blockBlobClient.uploadData(fileBuffer);
 
-  return blockBlobClient.url;
+  return blockBlobClient.url;  // vraća URL uploadovanog fajla
 }
 
 module.exports = { uploadToBlob };
