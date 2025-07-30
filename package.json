@@ -17,7 +17,6 @@
     "docx-templates": "^4.6.1",
     "pizzip": "^3.0.5",
     "docxtemplater": "^3.29.0",
-    "docxtemplater-cleaner": "^1.1.0,
-    "docxtemplater-cleaner": "git+https://github.com/open-xml-templating/docxtemplater-cleaner.git"
+    "docxtemplater-cleaner": "^1.1.0
   }
 }
