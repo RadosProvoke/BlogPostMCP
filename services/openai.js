@@ -38,6 +38,8 @@ ${transcript}
 
   const content = result.choices[0].message.content;
   const lines = content.trim().split('\n');
+
+  // Pretpostavljamo da je prvi red naslov, počinje sa # ili ## ...
   const title = lines[0].replace(/^#+\s*/, '').trim();
   const body = lines.slice(1).join('\n').trim();
 
@@ -45,3 +47,4 @@ ${transcript}
 }
 
 module.exports = { generateBlogContent };
+
