@@ -16,14 +16,7 @@ const upload = multer();
 
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
-    /*
-    const transcript = extractTextFromTranscript(req.file.buffer, req.file.originalname);
-    const blog = await generateBlogContent(transcript);
-    const templateBuffer = await downloadTemplate();
-    const docx = await createDocxFromBuffer(templateBuffer, blog);
-    const sharepointUrl = await uploadToSharePoint(docx, blog.title);
-    res.json({ title: blog.title, url: sharepointUrl });
-*/
+    
     const buffer = req.file.buffer;
     const filename = req.file.originalname;
     const transcript = extractTextFromTranscript(buffer, filename);
