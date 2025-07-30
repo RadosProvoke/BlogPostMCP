@@ -18,7 +18,7 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     const filename = req.file.originalname;
     const transcript = extractTextFromTranscript(buffer, filename);
 
-    console.log("Transcript extracted:", transcript.slice(0, 500)); // samo prvih 500 karaktera za pregled
+    console.log("Transcript extracted:", transcript.slice(0, 500)); // the first 500 hundred chars
 
     // generating blog post content
     const blogContent = await generateBlogContent(transcript);
