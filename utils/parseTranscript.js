@@ -12,8 +12,8 @@ function extractTextFromTranscript(buffer, filename) {
       .map(line => line.trim())
       .filter(line =>
         line !== '' &&
-        !line.match(/^\d+$/) &&                        // redni brojevi
-        !line.match(/\d{2}:\d{2}:\d{2}[.,]\d{3}/)     // timestamp sa ms
+        !line.match(/^\d+$/) &&                        // serial numbers
+        !line.match(/\d{2}:\d{2}:\d{2}[.,]\d{3}/)     // timestamps with ms
       )
       .join(' ')
       .replace(/\s+/g, ' ')
