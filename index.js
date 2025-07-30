@@ -29,7 +29,7 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     const blogContent = await generateBlogContent(transcript);
     const docBuffer = await createDocx(blogContent);
 
-    const blobURL = await uploadToBlob(docBuffer, blogContent.title + ".docx");
+    const blobURL = await uploadToBlob(docBuffer, blogContent.title);
     res.json({ title: blogContent.title, url: blobURL });
 
     
