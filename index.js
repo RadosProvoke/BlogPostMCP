@@ -11,22 +11,23 @@ dotenv.config();
 const app = express();
 const upload = multer();
 
+app.use(express.json());
+
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
-  
   try {
     const buffer = req.file.buffer;
     const filename = req.file.originalname;
     const transcript = extractTextFromTranscript(buffer, filename);
 
-    console.log("Transcript extracted:", transcript.slice(0, 500)); // the first 500 hundred chars
+    console.log("Transcript extracted (first 500 chars):", transcript.slice(0, 500));
 
     // generating blog post content
     const blogContent = await generateBlogContent(transcript);
 
     console.log("Generated blog title:", blogContent.title);
-    console.log("Generated blog body:", blogContent.body);
+    console.log("Generated blog body snippet:", blogContent.body.slice(0, 300));
 
-    // creating .docx file with field names 
+    // creating .docx file with field names
     const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
 
     // Upload to Blob storage
@@ -34,15 +35,13 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
 
     console.log("File uploaded to Blob Storage. URL:", blobURL);
 
-    // sending URL-a to the client
+    // sending URL to the client
     res.json({ title: blogContent.title, url: blobURL });
-
   } catch (err) {
     console.error("Error during blog generation:", err);
     res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
-
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`MCP server running on ${port}`));
