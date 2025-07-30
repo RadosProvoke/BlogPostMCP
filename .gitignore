@@ -1,0 +1,24 @@
+# Node modules folder
+node_modules/
+
+# Env file with sensitive data
+.env
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build folder 
+dist/
+build/
+
+# VS Code configuration
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Multer temporary upload folder 
+uploads/
