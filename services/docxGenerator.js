@@ -2,12 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const PizZip = require('pizzip');
 const Docxtemplater = require('docxtemplater');
+const { clean } = require("docxtemplater-cleaner");
 
 async function createDocx({ title, body }) {
   const templatePath = path.join(__dirname, '..', 'templates', 'blog_template.docx');
   const content = fs.readFileSync(templatePath, 'binary');
 
   const zip = new PizZip(content);
+
+  clean(zip);
 
   const doc = new Docxtemplater(zip, {
     paragraphLoop: true,
