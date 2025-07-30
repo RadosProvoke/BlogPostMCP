@@ -1,8 +1,9 @@
 /*
-const createReport = require('docx-templates').default;
+const docxTemplates = require('docx-templates');
+const createReport = docxTemplates.default || docxTemplates;
 
-console.log('createReport:', createReport);
-
+console.log('docxTemplates:', typeof docxTemplates, Object.keys(docxTemplates));
+console.log('createReport:', typeof createReport);
 
 async function replacePlaceholders(templateBuffer, data) {
   return await createReport({
@@ -13,11 +14,8 @@ async function replacePlaceholders(templateBuffer, data) {
 
 module.exports = { replacePlaceholders };
 */
-const docxTemplates = require('docx-templates');
-const createReport = docxTemplates.default || docxTemplates;
 
-console.log('docxTemplates:', typeof docxTemplates, Object.keys(docxTemplates));
-console.log('createReport:', typeof createReport);
+const { createReport } = require('docx-templates');
 
 async function replacePlaceholders(templateBuffer, data) {
   return await createReport({
