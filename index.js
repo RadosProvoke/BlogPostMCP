@@ -18,13 +18,13 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     const filename = req.file.originalname;
     const transcript = extractTextFromTranscript(buffer, filename);
 
-    console.log("Transcript extracted:", transcript.slice(0, 500)); // samo prvih 500 karaktera za pregled
+    console.log("Transcript extracted:", transcript.slice(0, 500)); // the first 500 hundred chars
 
     // generating blog post content
     const blogContent = await generateBlogContent(transcript);
 
     console.log("Generated blog title:", blogContent.title);
-    console.log("Generated blog body (first 500 chars):", blogContent.body.slice(0, 500));
+    console.log("Generated blog body:", blogContent.body);
 
     // creating .docx file with field names 
     const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
