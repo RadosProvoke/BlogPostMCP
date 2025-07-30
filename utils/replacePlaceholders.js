@@ -1,7 +1,7 @@
-const { replaceTextPlaceholders } = require('docx-templates');
+const createReport = require('docx-templates');
 
 async function replacePlaceholders(templateBuffer, data) {
-  return await replaceTextPlaceholders({
+  return await createReport({
     template: templateBuffer,
     data,
   });
