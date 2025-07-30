@@ -3,6 +3,8 @@ const multer = require('multer');
 const dotenv = require('dotenv');
 const { generateBlogContent } = require('./services/openai');
 //const { createDocxFromBuffer } = require('./services/docxGenerator');
+console.log("Blog content:", blogContent);
+const docBuffer = await createDocx(blogContent);
 const { createDocx } = require('./services/docxGenerator');
 //const { uploadToSharePoint, downloadTemplate } = require('./services/sharepoint');
 const { uploadToBlob } = require('./services/storage');
@@ -27,7 +29,7 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     const transcript = extractTextFromTranscript(buffer, filename);
 
     const blogContent = await generateBlogContent(transcript);
-    const docBuffer = await createDocx(blogContent);
+    const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.content });
 
     const blobURL = await uploadToBlob(docBuffer, blogContent.title);
     res.json({ title: blogContent.title, url: blobURL });
