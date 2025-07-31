@@ -6,10 +6,15 @@ host: blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
 basePath: /
 schemes:
   - https
+consumes:
+  - multipart/form-data
+produces:
+  - application/json
 paths:
   /generate-blogpost:
     post:
       summary: Generate a blog post from transcript
+      description: Upload a transcript file to generate a blog post.
       operationId: generateBlogPost
       consumes:
         - multipart/form-data
@@ -18,15 +23,18 @@ paths:
       parameters:
         - name: transcript
           in: formData
-          type: file
+          description: Transcript file to upload
           required: true
+          type: file
       responses:
         200:
-          description: Blog post generated
+          description: Blog post generated successfully
           schema:
             type: object
             properties:
               title:
                 type: string
+                example: "How to use MCP with Power Apps"
               url:
                 type: string
+                example: "https://blobstorageurl/path/to/generated.docx"
