@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const createReport = require('docx-templates');
+const { createReport } = require('docx-templates');
 
 async function createDocx({ title, body }) {
   const templatePath = path.join(__dirname, '../templates/blog_template.docx');
