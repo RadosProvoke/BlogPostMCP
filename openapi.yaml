@@ -1,4 +1,4 @@
-swagger: '2.0'
+swagger: "2.0"
 info:
   title: BlogPostMCP
   version: 1.0.0
@@ -7,33 +7,34 @@ basePath: /
 schemes:
   - https
 consumes:
-  - application/json
+  - multipart/form-data
 produces:
   - application/json
 paths:
   /generate-blogpost:
     post:
       summary: Generate a blog post from transcript
-      description: Submit transcript text to generate a blog post.
+      description: Upload a transcript file to generate a blog post.
       operationId: generateBlogPost
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
       parameters:
-        - name: body
-          in: body
+        - name: transcript
+          in: formData
+          description: Transcript file to upload
           required: true
-          schema:
-            type: object
-            properties:
-              transcriptText:
-                type: string
-                description: Transcript content as plain text or base64
+          type: file
       responses:
-        '200':
+        200:
           description: Blog post generated successfully
           schema:
             type: object
             properties:
               title:
                 type: string
+                example: "How to use MCP with Power Apps"
               url:
                 type: string
-securityDefinitions: {}
+                example: "https://blobstorageurl/path/to/generated.docx"
