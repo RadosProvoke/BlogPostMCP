@@ -1,4 +1,4 @@
-const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel, ExternalHyperlink } = require('docx');
 
 function parseMarkdownToDocxParagraphs(markdown) {
   const lines = markdown.split('\n');
@@ -24,27 +24,35 @@ function parseMarkdownToDocxParagraphs(markdown) {
       let match;
 
       while ((match = regex.exec(line)) !== null) {
-        const [fullMatch, text, url] = match;
-        if (match.index > lastIndex) {
+        const textBefore = line.substring(lastIndex, match.index);
+        if (textBefore) {
           children.push(new TextRun({
-            text: line.substring(lastIndex, match.index),
+            text: textBefore,
             font: "Segoe UI",
             size: 24,
           }));
         }
 
-        children.push(new TextRun({
-          text,
-          style: "Hyperlink",
-          hyperlink: url,
+        const displayText = match[1];
+        const url = match[2];
+
+        children.push(new ExternalHyperlink({
+          children: [
+            new TextRun({
+              text: displayText,
+              style: "Hyperlink",
+            })
+          ],
+          link: url
         }));
 
         lastIndex = regex.lastIndex;
       }
 
-      if (lastIndex < line.length) {
+      const remainingText = line.substring(lastIndex);
+      if (remainingText) {
         children.push(new TextRun({
-          text: line.substring(lastIndex),
+          text: remainingText,
           font: "Segoe UI",
           size: 24,
         }));
@@ -52,7 +60,7 @@ function parseMarkdownToDocxParagraphs(markdown) {
 
       paragraphs.push(new Paragraph({
         children,
-        spacing: { after: 120 }
+        spacing: { after: 120 },
       }));
     }
   });
@@ -96,26 +104,25 @@ async function createDocx({ title, body }) {
           id: "Hyperlink",
           name: "Hyperlink",
           basedOn: "Normal",
+          next: "Normal",
           run: {
             font: "Segoe UI",
             color: "0000FF",
             underline: "single",
-            size: 24, // 12pt
-          }
+            size: 24,
+          },
         }
       ]
     },
-    sections: [
-      {
-        children: [
-          new Paragraph({
-            text: title,
-            style: "titleStyle",
-          }),
-          ...parseMarkdownToDocxParagraphs(body),
-        ]
-      }
-    ]
+    sections: [{
+      children: [
+        new Paragraph({
+          text: title,
+          style: "titleStyle",
+        }),
+        ...parseMarkdownToDocxParagraphs(body),
+      ],
+    }],
   });
 
   const buffer = await Packer.toBuffer(doc);
