@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const { generateBlogContent } = require('./services/openai');
 const { createDocx } = require('./services/docxGenerator');
 const { uploadToBlob } = require('./services/storage');
@@ -10,6 +11,8 @@ dotenv.config();
 
 const app = express();
 const upload = multer();
+
+app.use(cors());
 
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
