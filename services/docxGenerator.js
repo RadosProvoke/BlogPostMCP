@@ -1,4 +1,4 @@
-const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
+const { Paragraph, HeadingLevel, Packer, Document, TextRun } = require('docx');
 
 function parseMarkdownToDocxParagraphs(markdown) {
   const lines = markdown.split('\n');
@@ -13,21 +13,18 @@ function parseMarkdownToDocxParagraphs(markdown) {
           before: 200,
           after: 100,
         },
-        style: "sectionHeading",
+        style: "sectionHeading", 
       }));
     } else if (line.trim() === '') {
-      // Prazan red sa razmakom
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
     } else {
       paragraphs.push(new Paragraph({
-        children: [
-          new TextRun({
-            text: line,
-            font: "Segoe UI",
-            size: 24, // 12pt
-          })
-        ],
-        spacing: { after: 120 }
+        children: [new TextRun({
+          text: line,
+          font: "Segoe UI",
+          size: 24,  // 24 half-points = 12pt
+        })],
+        spacing: { after: 120 },
       }));
     }
   });
@@ -46,12 +43,14 @@ async function createDocx({ title, body }) {
           next: "Normal",
           run: {
             font: "Segoe UI",
-            size: 28, // 14pt
+            size: 28, // 28 half-points = 14pt
             bold: true,
           },
           paragraph: {
-            spacing: { after: 300 }
-          }
+            spacing: {
+              after: 300,
+            },
+          },
         },
         {
           id: "sectionHeading",
@@ -60,12 +59,30 @@ async function createDocx({ title, body }) {
           next: "Normal",
           run: {
             font: "Segoe UI",
-            size: 26, // 13pt
+            size: 26, // 26 half-points = 13pt
             bold: true,
           },
           paragraph: {
-            spacing: { before: 200, after: 100 }
-          }
+            spacing: {
+              before: 200,
+              after: 100,
+            },
+          },
+        },
+        {
+          id: "normalText",
+          name: "Normal Text",
+          basedOn: "Normal",
+          next: "Normal",
+          run: {
+            font: "Segoe UI",
+            size: 24, // 24 half-points = 12pt
+          },
+          paragraph: {
+            spacing: {
+              after: 120,
+            },
+          },
         }
       ]
     },
