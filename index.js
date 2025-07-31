@@ -12,11 +12,7 @@ dotenv.config();
 const app = express();
 const upload = multer();
 
-app.use(cors({
-  origin: ['https://make.powerapps.com', 'https://*.powerapps.com'], // Replace with exact URL of the app
-  methods: ['POST'],  // Allowed HTTP methods
-  allowedHeaders: ['Content-Type', 'Authorization'],  // Allowed headers
-}));
+app.use(cors());
 
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
