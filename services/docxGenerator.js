@@ -1,6 +1,6 @@
-const { Document, Packer, Paragraph, TextRun, HeadingLevel, Hyperlink } = require('docx');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
 
-function parseMarkdownToDocxParagraphs(markdown) {
+function parseMarkdownToDocxParagraphs(markdown, doc) {
   const lines = markdown.split('\n');
   const paragraphs = [];
 
@@ -16,17 +16,14 @@ function parseMarkdownToDocxParagraphs(markdown) {
         style: "sectionHeading",
       }));
     } else if (line.trim() === '') {
-      // Prazan red sa razmakom
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
     } else {
-      // Obrada linije sa potencijalnim linkovima u formatu [tekst](url)
       const parts = [];
       const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
       let lastIndex = 0;
       let match;
 
       while ((match = regex.exec(line)) !== null) {
-        // Tekst pre linka
         if (match.index > lastIndex) {
           parts.push(new TextRun({
             text: line.substring(lastIndex, match.index),
@@ -35,24 +32,17 @@ function parseMarkdownToDocxParagraphs(markdown) {
           }));
         }
 
-        // Klikabilni link
-        parts.push(new Hyperlink({
-          anchor: match[2],
-          children: [
-            new TextRun({
-              text: match[1],
-              font: "Segoe UI",
-              size: 24,
-              color: "0000FF",
-              underline: "single",
-            }),
-          ],
+        // Kreiramo hyperlink koristeći doc.createHyperlink
+        const hyperlink = doc.createHyperlink(match[2]);
+        parts.push(new TextRun({
+          text: match[1],
+          style: "Hyperlink",
+          hyperlink,
         }));
 
         lastIndex = regex.lastIndex;
       }
 
-      // Tekst posle poslednjeg linka
       if (lastIndex < line.length) {
         parts.push(new TextRun({
           text: line.substring(lastIndex),
@@ -63,7 +53,7 @@ function parseMarkdownToDocxParagraphs(markdown) {
 
       paragraphs.push(new Paragraph({
         children: parts,
-        spacing: { after: 120 }
+        spacing: { after: 120 },
       }));
     }
   });
@@ -82,7 +72,7 @@ async function createDocx({ title, body }) {
           next: "Normal",
           run: {
             font: "Segoe UI",
-            size: 28, // 14pt
+            size: 28,
             bold: true,
           },
           paragraph: {
@@ -96,7 +86,7 @@ async function createDocx({ title, body }) {
           next: "Normal",
           run: {
             font: "Segoe UI",
-            size: 26, // 13pt
+            size: 26,
             bold: true,
           },
           paragraph: {
@@ -104,15 +94,15 @@ async function createDocx({ title, body }) {
           }
         },
         {
-          id: "hyperlink",
+          id: "Hyperlink",
           name: "Hyperlink",
           basedOn: "Normal",
           next: "Normal",
           run: {
             font: "Segoe UI",
-            size: 24,
             color: "0000FF",
             underline: "single",
+            size: 24,
           },
         }
       ]
@@ -123,7 +113,7 @@ async function createDocx({ title, body }) {
           text: title,
           style: "titleStyle",
         }),
-        ...parseMarkdownToDocxParagraphs(body),
+        ...parseMarkdownToDocxParagraphs(body, doc),
       ],
     }],
   });
