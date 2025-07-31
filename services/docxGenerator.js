@@ -1,4 +1,4 @@
-const { Document, Packer, Paragraph, TextRun, HeadingLevel, ExternalHyperlink } = require('docx');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel, Hyperlink } = require('docx');
 
 function parseMarkdownToDocxParagraphs(markdown) {
   const lines = markdown.split('\n');
@@ -19,30 +19,52 @@ function parseMarkdownToDocxParagraphs(markdown) {
       // Prazan red sa razmakom
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
     } else {
-      // Provera da li je linija link u formatu: - [tekst](url)
-      const linkMatch = line.match(/^\s*-\s*\[(.+?)\]\((https?:\/\/[^\s)]+)\)/);
-      if (linkMatch) {
-        const [, text, url] = linkMatch;
-        const hyperlink = new ExternalHyperlink({
-          children: [new TextRun({ text, style: "hyperlink" })],
-          link: url,
-        });
-        paragraphs.push(new Paragraph({
-          children: [hyperlink],
-          spacing: { after: 120 }
-        }));
-      } else {
-        paragraphs.push(new Paragraph({
+      // Obrada linije sa potencijalnim linkovima u formatu [tekst](url)
+      const parts = [];
+      const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
+      let lastIndex = 0;
+      let match;
+
+      while ((match = regex.exec(line)) !== null) {
+        // Tekst pre linka
+        if (match.index > lastIndex) {
+          parts.push(new TextRun({
+            text: line.substring(lastIndex, match.index),
+            font: "Segoe UI",
+            size: 24,
+          }));
+        }
+
+        // Klikabilni link
+        parts.push(new Hyperlink({
+          anchor: match[2],
           children: [
             new TextRun({
-              text: line,
+              text: match[1],
               font: "Segoe UI",
-              size: 24, // 12pt
-            })
+              size: 24,
+              color: "0000FF",
+              underline: "single",
+            }),
           ],
-          spacing: { after: 120 }
+        }));
+
+        lastIndex = regex.lastIndex;
+      }
+
+      // Tekst posle poslednjeg linka
+      if (lastIndex < line.length) {
+        parts.push(new TextRun({
+          text: line.substring(lastIndex),
+          font: "Segoe UI",
+          size: 24,
         }));
       }
+
+      paragraphs.push(new Paragraph({
+        children: parts,
+        spacing: { after: 120 }
+      }));
     }
   });
 
@@ -87,12 +109,12 @@ async function createDocx({ title, body }) {
           basedOn: "Normal",
           next: "Normal",
           run: {
+            font: "Segoe UI",
+            size: 24,
             color: "0000FF",
             underline: "single",
-            font: "Segoe UI",
-            size: 24, // 12pt
           },
-        },
+        }
       ]
     },
     sections: [{
