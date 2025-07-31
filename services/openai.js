@@ -20,9 +20,10 @@ From the transcript below, create a complete blog post with these rules:
   ## Section Heading
   <text>
 
-- After the body, add a "Next Steps" section with 2–4 **relevant, educational links** (Microsoft Learn, GitHub, spec, tutorials) focused on Model Context Protocol (MCP).
-- Format links in Next Steps section as markdown list:  
+- Update "6. Call to Action" section with 2–4 **relevant, educational links** (Microsoft Learn, GitHub, spec, tutorials) focused on the document content.
+- Format links in the last section as markdown list:  
   - [label](url)
+  
 Do not use generic section titles. Infer them from the actual transcript.
 
 Transcript:
