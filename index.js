@@ -1,30 +1,37 @@
 const express = require('express');
-const multer = require('multer');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const { generateBlogContent } = require('./services/openai');
 const { createDocx } = require('./services/docxGenerator');
 const { uploadToBlob } = require('./services/storage');
-const { extractTextFromTranscript } = require('./utils/parseTranscript');
 
 dotenv.config();
 
 const app = express();
-const upload = multer();
 
+// Enable CORS
 app.use(cors({
-  origin: '*', 
+  origin: '*',
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
-  try {
-    const buffer = req.file.buffer;
-    const filename = req.file.originalname;
-    const transcript = extractTextFromTranscript(buffer, filename);
+// Add JSON body parser
+app.use(express.json());
 
-    console.log("Transcript extracted:", transcript.slice(0, 500));
+/**
+ * POST /generate-blogpost
+ * Accepts JSON: { transcriptText: "some text" }
+ */
+app.post('/generate-blogpost', async (req, res) => {
+  try {
+    const transcript = req.body.transcriptText;
+
+    if (!transcript || typeof transcript !== 'string') {
+      return res.status(400).json({ error: "transcriptText (string) is required in JSON body." });
+    }
+
+    console.log("Transcript received (preview):", transcript.slice(0, 500));
 
     const blogContent = await generateBlogContent(transcript);
 
