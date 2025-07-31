@@ -88,7 +88,7 @@ async function createDocx({ title, body }) {
           next: "Normal",
           run: {
             color: "0000FF",
-            underline: {},
+            underline: "single",
             font: "Segoe UI",
             size: 24, // 12pt
           },
