@@ -3,8 +3,7 @@ const {
   Packer,
   Paragraph,
   TextRun,
-  HeadingLevel,
-  ExternalHyperlink,
+  HeadingLevel
 } = require('docx');
 
 function parseMarkdownToDocxParagraphs(markdown) {
@@ -25,37 +24,31 @@ function parseMarkdownToDocxParagraphs(markdown) {
     } else if (line.trim() === '') {
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
     } else {
+      const parts = [];
       const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
-      let match;
       let lastIndex = 0;
-      const children = [];
+      let match;
 
       while ((match = regex.exec(line)) !== null) {
-        const [fullMatch, linkText, url] = match;
-
         if (match.index > lastIndex) {
-          children.push(new TextRun({
+          parts.push(new TextRun({
             text: line.substring(lastIndex, match.index),
             font: "Segoe UI",
             size: 24,
           }));
         }
 
-        children.push(new ExternalHyperlink({
-          children: [
-            new TextRun({
-              text: linkText,
-              style: "Hyperlink", // koristi stil definisan ispod
-            }),
-          ],
-          link: url,
+        parts.push(new TextRun({
+          text: match[1],
+          style: "Hyperlink",
+          hyperlink: match[2],
         }));
 
         lastIndex = regex.lastIndex;
       }
 
       if (lastIndex < line.length) {
-        children.push(new TextRun({
+        parts.push(new TextRun({
           text: line.substring(lastIndex),
           font: "Segoe UI",
           size: 24,
@@ -63,7 +56,7 @@ function parseMarkdownToDocxParagraphs(markdown) {
       }
 
       paragraphs.push(new Paragraph({
-        children,
+        children: parts,
         spacing: { after: 120 },
       }));
     }
@@ -83,11 +76,11 @@ async function createDocx({ title, body }) {
           next: "Normal",
           run: {
             font: "Segoe UI",
-            size: 28,
+            size: 28, // 14pt
             bold: true,
           },
           paragraph: {
-            spacing: { after: 300 },
+            spacing: { after: 300 }
           }
         },
         {
@@ -97,11 +90,11 @@ async function createDocx({ title, body }) {
           next: "Normal",
           run: {
             font: "Segoe UI",
-            size: 26,
+            size: 26, // 13pt
             bold: true,
           },
           paragraph: {
-            spacing: { before: 200, after: 100 },
+            spacing: { before: 200, after: 100 }
           }
         },
         {
@@ -114,20 +107,21 @@ async function createDocx({ title, body }) {
             color: "0000FF",
             underline: "single",
             size: 24,
-          },
+          }
         }
       ]
-    },
-    sections: [{
-      children: [
-        new Paragraph({
-          text: title,
-          style: "titleStyle",
-        }),
-        ...parseMarkdownToDocxParagraphs(body),
-      ],
-    }],
+    }
   });
+
+  const content = [
+    new Paragraph({
+      text: title,
+      style: "titleStyle",
+    }),
+    ...parseMarkdownToDocxParagraphs(body),
+  ];
+
+  doc.addSection({ children: content });
 
   const buffer = await Packer.toBuffer(doc);
   return buffer;
