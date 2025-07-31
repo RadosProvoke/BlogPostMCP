@@ -1,6 +1,13 @@
-const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
+const {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  HeadingLevel,
+  ExternalHyperlink,
+} = require('docx');
 
-function parseMarkdownToDocxParagraphs(markdown, doc) {
+function parseMarkdownToDocxParagraphs(markdown) {
   const lines = markdown.split('\n');
   const paragraphs = [];
 
@@ -18,33 +25,37 @@ function parseMarkdownToDocxParagraphs(markdown, doc) {
     } else if (line.trim() === '') {
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
     } else {
-      const parts = [];
       const regex = /\[([^\]]+)\]\(([^)]+)\)/g;
-      let lastIndex = 0;
       let match;
+      let lastIndex = 0;
+      const children = [];
 
       while ((match = regex.exec(line)) !== null) {
+        const [fullMatch, linkText, url] = match;
+
         if (match.index > lastIndex) {
-          parts.push(new TextRun({
+          children.push(new TextRun({
             text: line.substring(lastIndex, match.index),
             font: "Segoe UI",
             size: 24,
           }));
         }
 
-        // Kreiramo hyperlink koristeći doc.createHyperlink
-        const hyperlink = doc.createHyperlink(match[2]);
-        parts.push(new TextRun({
-          text: match[1],
-          style: "Hyperlink",
-          hyperlink,
+        children.push(new ExternalHyperlink({
+          children: [
+            new TextRun({
+              text: linkText,
+              style: "Hyperlink", // koristi stil definisan ispod
+            }),
+          ],
+          link: url,
         }));
 
         lastIndex = regex.lastIndex;
       }
 
       if (lastIndex < line.length) {
-        parts.push(new TextRun({
+        children.push(new TextRun({
           text: line.substring(lastIndex),
           font: "Segoe UI",
           size: 24,
@@ -52,7 +63,7 @@ function parseMarkdownToDocxParagraphs(markdown, doc) {
       }
 
       paragraphs.push(new Paragraph({
-        children: parts,
+        children,
         spacing: { after: 120 },
       }));
     }
@@ -76,7 +87,7 @@ async function createDocx({ title, body }) {
             bold: true,
           },
           paragraph: {
-            spacing: { after: 300 }
+            spacing: { after: 300 },
           }
         },
         {
@@ -90,7 +101,7 @@ async function createDocx({ title, body }) {
             bold: true,
           },
           paragraph: {
-            spacing: { before: 200, after: 100 }
+            spacing: { before: 200, after: 100 },
           }
         },
         {
@@ -113,7 +124,7 @@ async function createDocx({ title, body }) {
           text: title,
           style: "titleStyle",
         }),
-        ...parseMarkdownToDocxParagraphs(body, doc),
+        ...parseMarkdownToDocxParagraphs(body),
       ],
     }],
   });
