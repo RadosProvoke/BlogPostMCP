@@ -1,4 +1,4 @@
-const { Document, Packer, Paragraph, HeadingLevel } = require('docx');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
 
 function parseMarkdownToDocxParagraphs(markdown) {
   const lines = markdown.split('\n');
@@ -9,11 +9,26 @@ function parseMarkdownToDocxParagraphs(markdown) {
       paragraphs.push(new Paragraph({
         text: line.replace(/^##\s*/, ''),
         heading: HeadingLevel.HEADING_2,
+        spacing: {
+          before: 200,
+          after: 100,
+        },
+        style: "sectionHeading",
       }));
     } else if (line.trim() === '') {
-      // ignore empty lines
+      // Prazan red sa razmakom
+      paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
     } else {
-      paragraphs.push(new Paragraph(line));
+      paragraphs.push(new Paragraph({
+        children: [
+          new TextRun({
+            text: line,
+            font: "Segoe UI",
+            size: 24, // 12pt
+          })
+        ],
+        spacing: { after: 120 }
+      }));
     }
   });
 
@@ -22,11 +37,43 @@ function parseMarkdownToDocxParagraphs(markdown) {
 
 async function createDocx({ title, body }) {
   const doc = new Document({
+    styles: {
+      paragraphStyles: [
+        {
+          id: "titleStyle",
+          name: "Title Style",
+          basedOn: "Normal",
+          next: "Normal",
+          run: {
+            font: "Segoe UI",
+            size: 28, // 14pt
+            bold: true,
+          },
+          paragraph: {
+            spacing: { after: 300 }
+          }
+        },
+        {
+          id: "sectionHeading",
+          name: "Section Heading",
+          basedOn: "Normal",
+          next: "Normal",
+          run: {
+            font: "Segoe UI",
+            size: 26, // 13pt
+            bold: true,
+          },
+          paragraph: {
+            spacing: { before: 200, after: 100 }
+          }
+        }
+      ]
+    },
     sections: [{
       children: [
         new Paragraph({
           text: title,
-          heading: HeadingLevel.TITLE,
+          style: "titleStyle",
         }),
         ...parseMarkdownToDocxParagraphs(body),
       ],
