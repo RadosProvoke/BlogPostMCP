@@ -19,6 +19,7 @@ From the transcript below, create a complete blog post with these rules:
 - Format each section using markdown:
   ## Section Heading
   <text>
+
 - After the body, add a "Next Steps" section with 2–4 **relevant, educational links** (Microsoft Learn, GitHub, spec, tutorials) focused on Model Context Protocol (MCP).
 - Format links in Next Steps section as markdown list:  
   - [label](url)
@@ -49,4 +50,3 @@ ${transcript}
 }
 
 module.exports = { generateBlogContent };
-
