@@ -1,18 +1,10 @@
-const {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  HeadingLevel,
-  ExternalHyperlink
-} = require('docx');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
 
 function parseMarkdownToDocxParagraphs(markdown) {
   const lines = markdown.split('\n');
   const paragraphs = [];
 
   lines.forEach(line => {
-    // Detekcija markdown podnaslova
     if (line.startsWith('## ')) {
       paragraphs.push(new Paragraph({
         text: line.replace(/^##\s*/, ''),
@@ -23,41 +15,10 @@ function parseMarkdownToDocxParagraphs(markdown) {
         },
         style: "sectionHeading",
       }));
-    }
-
-    // Detekcija markdown hyperlinka u listi: - [text](url)
-    else if (line.match(/^- \[.*\]\(.*\)/)) {
-      const match = line.match(/^- \[(.*?)\]\((.*?)\)/);
-      if (match) {
-        const [_, label, url] = match;
-
-        paragraphs.push(new Paragraph({
-          children: [
-            new ExternalHyperlink({
-              children: [
-                new TextRun({
-                  text: label,
-                  style: "Hyperlink",
-                  font: "Segoe UI",
-                  size: 24,
-                }),
-              ],
-              link: url,
-            })
-          ],
-          bullet: { level: 0 },
-          spacing: { after: 100 }
-        }));
-      }
-    }
-
-    // Prazne linije – pravi se prazni red sa razmakom
-    else if (line.trim() === '') {
+    } else if (line.trim() === '') {
+      // Prazan red sa razmakom
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
-    }
-
-    // Običan tekst
-    else {
+    } else {
       paragraphs.push(new Paragraph({
         children: [
           new TextRun({
