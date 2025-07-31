@@ -1,4 +1,4 @@
-const { Document, Packer, Paragraph, TextRun, HeadingLevel } = require('docx');
+const { Document, Packer, Paragraph, TextRun, HeadingLevel, ExternalHyperlink } = require('docx');
 
 function parseMarkdownToDocxParagraphs(markdown) {
   const lines = markdown.split('\n');
@@ -19,16 +19,30 @@ function parseMarkdownToDocxParagraphs(markdown) {
       // Prazan red sa razmakom
       paragraphs.push(new Paragraph({ text: "", spacing: { after: 200 } }));
     } else {
-      paragraphs.push(new Paragraph({
-        children: [
-          new TextRun({
-            text: line,
-            font: "Segoe UI",
-            size: 24, // 12pt
-          })
-        ],
-        spacing: { after: 120 }
-      }));
+      // Provera da li je linija link u formatu: - [tekst](url)
+      const linkMatch = line.match(/^\s*-\s*\[(.+?)\]\((https?:\/\/[^\s)]+)\)/);
+      if (linkMatch) {
+        const [, text, url] = linkMatch;
+        const hyperlink = new ExternalHyperlink({
+          children: [new TextRun({ text, style: "hyperlink" })],
+          link: url,
+        });
+        paragraphs.push(new Paragraph({
+          children: [hyperlink],
+          spacing: { after: 120 }
+        }));
+      } else {
+        paragraphs.push(new Paragraph({
+          children: [
+            new TextRun({
+              text: line,
+              font: "Segoe UI",
+              size: 24, // 12pt
+            })
+          ],
+          spacing: { after: 120 }
+        }));
+      }
     }
   });
 
@@ -66,7 +80,19 @@ async function createDocx({ title, body }) {
           paragraph: {
             spacing: { before: 200, after: 100 }
           }
-        }
+        },
+        {
+          id: "hyperlink",
+          name: "Hyperlink",
+          basedOn: "Normal",
+          next: "Normal",
+          run: {
+            color: "0000FF",
+            underline: {},
+            font: "Segoe UI",
+            size: 24, // 12pt
+          },
+        },
       ]
     },
     sections: [{
