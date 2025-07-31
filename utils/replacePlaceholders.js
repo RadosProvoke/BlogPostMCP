@@ -1,4 +1,4 @@
-const createReport = require('docx-templates');
+const { createReport } = require('docx-templates');
 
 async function replacePlaceholders(templateBuffer, data) {
   try {
