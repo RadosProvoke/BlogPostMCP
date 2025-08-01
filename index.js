@@ -16,6 +16,19 @@ app.use(cors());
 
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
+    console.log("Received request to /generate-blogpost");
+
+    if (!req.file) {
+      console.error("No file received in request.");
+      return res.status(400).json({ error: "No transcript file uploaded." });
+    }
+
+    console.log("File info:", {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+
     const buffer = req.file.buffer;
     const filename = req.file.originalname;
     const transcript = extractTextFromTranscript(buffer, filename);
