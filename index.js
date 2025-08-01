@@ -1,5 +1,4 @@
 const express = require('express');
-const multer = require('multer');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
@@ -12,7 +11,9 @@ const { extractTextFromTranscript } = require('./utils/parseTranscript');
 dotenv.config();
 
 const app = express();
-const upload = multer();
+
+// Parsiranje JSON tela sa velikim limitom za base64 fajlove
+app.use(express.json({ limit: '10mb' }));
 
 // Serve static files (e.g. /.well-known/ai-plugin.json)
 app.use(express.static(path.join(__dirname, 'public')));
@@ -23,33 +24,37 @@ app.use(cors({
   allowedHeaders: ['Content-Type']
 }));
 
-app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
+app.post('/generate-blogpost', async (req, res) => {
   try {
     console.log("Received request to /generate-blogpost");
 
-    if (!req.file) {
-      console.error("No file received in request.");
-      return res.status(400).json({ error: "No transcript file uploaded." });
+    const { filename, fileContent } = req.body;
+
+    if (!filename || !fileContent) {
+      console.error("Missing filename or fileContent in request body.");
+      return res.status(400).json({ error: "Request body must include 'filename' and 'fileContent' (base64)." });
     }
 
-    console.log("File info:", {
-      originalname: req.file.originalname,
-      mimetype: req.file.mimetype,
-      size: req.file.size
-    });
+    // Decode base64 content to buffer
+    const buffer = Buffer.from(fileContent, 'base64');
 
-    const buffer = req.file.buffer;
-    const filename = req.file.originalname;
+    console.log(`Received file: ${filename} (${buffer.length} bytes)`);
+
+    // Extract plain transcript text from buffer based on file extension
     const transcript = extractTextFromTranscript(buffer, filename);
 
     console.log("Transcript extracted:", transcript.slice(0, 500));
 
+    // Generate blog content from transcript
     const blogContent = await generateBlogContent(transcript);
 
     console.log("Generated blog title:", blogContent.title);
-    console.log("Generated blog body:", blogContent.body);
+    console.log("Generated blog body length:", blogContent.body.length);
 
+    // Create docx buffer from generated content
     const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
+
+    // Upload docx to Azure Blob Storage
     const blobURL = await uploadToBlob(docBuffer, blogContent.title);
 
     console.log("File uploaded to Blob Storage. URL:", blobURL);
