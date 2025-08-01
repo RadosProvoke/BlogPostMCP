@@ -7,32 +7,25 @@ basePath: /
 schemes:
   - https
 consumes:
-  - application/json
+  - multipart/form-data
 produces:
   - application/json
 paths:
   /generate-blogpost:
     post:
       summary: Generate a blog post from transcript
-      description: Upload a base64-encoded transcript to generate a blog post.
+      description: Upload a transcript file to generate a blog post.
       operationId: generateBlogPost
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
       parameters:
-        - in: body
-          name: body
+        - name: transcript
+          in: formData
+          description: Transcript file to upload
           required: true
-          schema:
-            type: object
-            required:
-              - filename
-              - fileContent
-            properties:
-              filename:
-                type: string
-                example: transcript.srt
-              fileContent:
-                type: string
-                description: Base64 encoded transcript content
-                example: VGhpcyBpcyBhIHRlc3QgdGV4dCBjb250ZW50Lg==
+          type: file
       responses:
         200:
           description: Blog post generated successfully
@@ -41,7 +34,7 @@ paths:
             properties:
               title:
                 type: string
-                example: How to use MCP with Power Apps
+                example: "How to use MCP with Power Apps"
               url:
                 type: string
-                example: https://blobstorageurl/path/to/generated.docx
+                example: "https://blobstorageurl/path/to/generated.docx"
