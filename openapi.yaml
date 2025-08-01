@@ -1,40 +1,37 @@
-swagger: "2.0"
+openapi: 3.0.1
 info:
   title: BlogPostMCP
   version: 1.0.0
-host: blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
-basePath: /
-schemes:
-  - https
-consumes:
-  - multipart/form-data
-produces:
-  - application/json
+servers:
+  - url: https://blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
 paths:
   /generate-blogpost:
     post:
       summary: Generate a blog post from transcript
       description: Upload a transcript file to generate a blog post.
       operationId: generateBlogPost
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
-      parameters:
-        - name: transcript
-          in: formData
-          description: Transcript file to upload
-          required: true
-          type: file
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                transcript:
+                  type: string
+                  format: binary
+                  description: Transcript file to upload
       responses:
-        200:
+        '200':
           description: Blog post generated successfully
-          schema:
-            type: object
-            properties:
-              title:
-                type: string
-                example: "How to use MCP with Power Apps"
-              url:
-                type: string
-                example: "https://blobstorageurl/path/to/generated.docx"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    example: How to use MCP with Power Apps
+                  url:
+                    type: string
+                    example: https://blobstorageurl/path/to/generated.docx
