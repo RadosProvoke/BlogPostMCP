@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Transcript to Blog Generator",
+  "name_for_model": "blogpost_mcp",
+  "description_for_human": "Generate a .docx blog post from a transcript file.",
+  "description_for_model": "Accepts a transcript file and returns a URL to a blog post in .docx format stored on Azure Blob.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net/openapi.yaml"
+  },
+  "logo_url": "https://via.placeholder.com/256",
+  "contact_email": "support@example.com",
+  "legal_info_url": "https://example.com/legal"
+}
