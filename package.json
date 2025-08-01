@@ -8,7 +8,10 @@
   "dependencies": {
     "@azure/openai": "^1.0.0-beta.3",
     "@azure/storage-blob": "^12.13.0",
+<<<<<<< HEAD
     "@modelcontextprotocol/sdk": "^1.17.1",
+=======
+>>>>>>> cdedd486e590b614a061ea2006b3f07d111f5446
     "axios": "^1.6.7",
     "cors": "^2.8.5",
     "docx": "^9.0.1",
