@@ -1,70 +1,57 @@
-require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
+const dotenv = require('dotenv');
 const cors = require('cors');
-const { MCPServer } = require('@modelcontextprotocol/sdk');
-
 const { generateBlogContent } = require('./services/openai');
 const { createDocx } = require('./services/docxGenerator');
 const { uploadToBlob } = require('./services/storage');
 const { extractTextFromTranscript } = require('./utils/parseTranscript');
 
+dotenv.config();
+
 const app = express();
 const upload = multer();
-const port = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
 
-/**
- * REST API endpoint
- */
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
+    console.log("Received request to /generate-blogpost");
+
     if (!req.file) {
+      console.error("No file received in request.");
       return res.status(400).json({ error: "No transcript file uploaded." });
     }
+
+    console.log("File info:", {
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
 
     const buffer = req.file.buffer;
     const filename = req.file.originalname;
     const transcript = extractTextFromTranscript(buffer, filename);
 
+    console.log("Transcript extracted:", transcript.slice(0, 500));
+
     const blogContent = await generateBlogContent(transcript);
-    const docBuffer = await createDocx(blogContent);
+
+    console.log("Generated blog title:", blogContent.title);
+    console.log("Generated blog body:", blogContent.body);
+
+    const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
     const blobURL = await uploadToBlob(docBuffer, blogContent.title);
 
+    console.log("File uploaded to Blob Storage. URL:", blobURL);
+
     res.json({ title: blogContent.title, url: blobURL });
+
   } catch (err) {
+    console.error("Error during blog generation:", err);
     res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 
-/**
- * MCP endpoint
- */
-const mcp = new MCPServer({
-  agentId: 'blogpost-generator',
-  transport: 'streamable-http',
-});
-
-mcp.handle(async ({ input, files }) => {
-  const file = files?.transcript;
-  if (!file) return { error: "No transcript file provided." };
-
-  const transcript = extractTextFromTranscript(file.buffer, file.name);
-  const blogContent = await generateBlogContent(transcript);
-  const docBuffer = await createDocx(blogContent);
-  const blobURL = await uploadToBlob(docBuffer, blogContent.title);
-
-  return {
-    title: blogContent.title,
-    url: blobURL
-  };
-});
-
-// Registruj MCP kao middleware na /mcp
-app.use('/mcp', mcp.middleware());
-
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`MCP server running on ${port}`));
