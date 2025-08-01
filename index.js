@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const path = require('path');
+
 const { generateBlogContent } = require('./services/openai');
 const { createDocx } = require('./services/docxGenerator');
 const { uploadToBlob } = require('./services/storage');
@@ -11,6 +13,9 @@ dotenv.config();
 
 const app = express();
 const upload = multer();
+
+// Serve static files (e.g. /.well-known/ai-plugin.json)
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cors({
   origin: '*',
@@ -52,10 +57,3 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     res.json({ title: blogContent.title, url: blobURL });
 
   } catch (err) {
-    console.error("Error during blog generation:", err);
-    res.status(500).json({ error: err.message, stack: err.stack });
-  }
-});
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`MCP server running on ${port}`));
