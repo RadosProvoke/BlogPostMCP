@@ -14,6 +14,7 @@ dotenv.config();
 const app = express();
 const upload = multer();
 
+/*
 // Serve static files (e.g. /.well-known/ai-plugin.json)
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -22,7 +23,7 @@ app.use(cors({
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
-
+*/
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
     console.log("Received request to /generate-blogpost");
