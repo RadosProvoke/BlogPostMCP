@@ -1,4 +1,4 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
   title: BlogPostMCP
   version: 1.0.0
@@ -27,18 +27,19 @@ paths:
           required: true
           type: file
       responses:
-        200:
+        '200':
           description: Blog post generated successfully
           schema:
             type: object
             properties:
               title:
                 type: string
-                example: "How to use MCP with Power Apps"
+                example: How to use MCP with Power Apps
               url:
                 type: string
-                example: "https://blobstorageurl/path/to/generated.docx"
-        400:
+                example: https://blobstorageurl/path/to/generated.docx
+        '400':
           description: Invalid input or missing boundary
-        500:
+        '500':
           description: Internal server error
+securityDefinitions: {}
