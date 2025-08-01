@@ -12,7 +12,11 @@ dotenv.config();
 const app = express();
 const upload = multer();
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type']
+}));
 
 app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => {
   try {
