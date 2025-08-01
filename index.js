@@ -14,7 +14,6 @@ dotenv.config();
 const app = express();
 const upload = multer();
 
-
 // Serve static files (e.g. /.well-known/ai-plugin.json)
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -58,3 +57,16 @@ app.post('/generate-blogpost', upload.single('transcript'), async (req, res) => 
     res.json({ title: blogContent.title, url: blobURL });
 
   } catch (err) {
+    console.error("Error during blog generation:", err);
+    res.status(500).json({ error: err.message, stack: err.stack });
+  }
+});
+
+// Serve OpenAPI spec
+app.get('/openapi.yaml', (req, res) => {
+  res.type('application/yaml');
+  res.sendFile(path.join(__dirname, 'openapi.yaml'));
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`MCP server running on ${port}`));
