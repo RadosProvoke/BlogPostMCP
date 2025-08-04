@@ -1,26 +1,15 @@
-const { BlobServiceClient, StorageSharedKeyCredential } = require('@azure/storage-blob'); 
-require('dotenv').config();
+const { BlobServiceClient } = require("@azure/storage-blob");
+const { v4: uuidv4 } = require("uuid");
 
-async function uploadToBlob(fileBuffer, filename) {
-  const account = process.env.AZURE_STORAGE_ACCOUNT_NAME;
-  const key = process.env.AZURE_STORAGE_ACCOUNT_KEY;
-  const containerName = process.env.AZURE_STORAGE_CONTAINER_NAME;
+const blobServiceClient = BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING);
+const containerClient = blobServiceClient.getContainerClient(process.env.AZURE_CONTAINER_NAME);
 
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const fullName = `${filename}-${timestamp}.docx`;
-
-  const credential = new StorageSharedKeyCredential(account, key);
-  const blobServiceClient = new BlobServiceClient(
-    `https://${account}.blob.core.windows.net`,
-    credential
-  );
-
-  const containerClient = blobServiceClient.getContainerClient(containerName);
-  await containerClient.createIfNotExists();
-
-  const blockBlobClient = containerClient.getBlockBlobClient(fullName);
-  await blockBlobClient.uploadData(fileBuffer);
-
+async function uploadToBlob(buffer) {
+  const blobName = `blog-${uuidv4()}.docx`;
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  await blockBlobClient.uploadData(buffer, {
+    blobHTTPHeaders: { blobContentType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }
+  });
   return blockBlobClient.url;
 }
 
