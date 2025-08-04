@@ -1,35 +1,39 @@
 swagger: '2.0'
 info:
   title: BlogPostMCP
-  description: MCP Server for generating blog posts from transcript files via Copilot Studio
   version: 1.0.0
 host: blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
 basePath: /
 schemes:
   - https
+consumes:
+  - application/json
+produces:
+  - application/json
 paths:
-  /generate-blog:
+  /generate-blogpost:
     post:
-      summary: Generate blog post from transcript
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json
+      summary: Generate a blog post from transcript
+      description: Submit transcript text to generate a blog post.
+      operationId: generateBlogPost
       parameters:
-        - name: transcript
-          in: formData
-          description: Transcript file (text format)
+        - name: body
+          in: body
           required: true
-          type: file
-      responses:
-        '200':
-          description: Successful generation
           schema:
             type: object
             properties:
+              transcriptText:
+                type: string
+                description: Transcript content as plain text or base64
+      responses:
+        '200':
+          description: Blog post generated successfully
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
               url:
                 type: string
-        '400':
-          description: Bad Request
-        '500':
-          description: Internal Server Error
+securityDefinitions: {}
