@@ -10,11 +10,7 @@ dotenv.config();
 const app = express();
 
 // Enable CORS
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());
 
 // Add JSON body parser
 app.use(express.json());
