@@ -1,37 +1,55 @@
 const express = require('express');
-const multer = require('multer');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const { generateBlogContent } = require('./services/openai');
 const { createDocx } = require('./services/docxGenerator');
 const { uploadToBlob } = require('./services/storage');
-const { extractTextFromTranscript } = require('./utils/parseTranscript');
 
 dotenv.config();
 
 const app = express();
-const upload = multer();
 
-app.use(cors());
+// Enable CORS
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-app.post('/generate-blog', upload.single('transcript'), async (req, res) => {
+// Add JSON body parser
+app.use(express.json());
+
+/**
+ * POST /generate-blogpost
+ * Accepts JSON: { transcriptText: "some text" }
+ */
+app.post('/generate-blogpost', async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No transcript file provided.' });
+    const transcript = req.body.transcriptText;
+
+    if (!transcript || typeof transcript !== 'string') {
+      return res.status(400).json({ error: "transcriptText (string) is required in JSON body." });
     }
 
-    const rawText = req.file.buffer.toString('utf-8');
-    const transcriptText = extractTextFromTranscript(rawText);
-    const blogContent = await generateBlogContent(transcriptText);
-    const docxBuffer = await createDocx(blogContent);
-    const blobUrl = await uploadToBlob(docxBuffer);
+    console.log("Transcript received (preview):", transcript.slice(0, 500));
 
-    res.json({ url: blobUrl });
-  } catch (error) {
-    console.error('Error processing request:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    const blogContent = await generateBlogContent(transcript);
+
+    console.log("Generated blog title:", blogContent.title);
+    console.log("Generated blog body:", blogContent.body);
+
+    const docBuffer = await createDocx({ title: blogContent.title, body: blogContent.body });
+    const blobURL = await uploadToBlob(docBuffer, blogContent.title);
+
+    console.log("File uploaded to Blob Storage. URL:", blobURL);
+
+    res.json({ title: blogContent.title, url: blobURL });
+
+  } catch (err) {
+    console.error("Error during blog generation:", err);
+    res.status(500).json({ error: err.message, stack: err.stack });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`MCP Server running on port ${PORT}`));
+const port = process.env.PORT || 3000;
+app.listen(port, () => console.log(`MCP server running on ${port}`));
