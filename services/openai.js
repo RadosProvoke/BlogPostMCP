@@ -1,10 +1,13 @@
-const { OpenAI } = require("openai");
+const { OpenAIClient, AzureKeyCredential } = require("@azure/openai");
+require('dotenv').config();
 
-const openai = new OpenAI({
-  apiKey: process.env.AZURE_OPENAI_KEY
-});
+const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
+const key = process.env.AZURE_OPENAI_KEY;
+const deployment = process.env.AZURE_OPENAI_DEPLOYMENT_NAME;
 
-async function generateBlogContent(transcriptText) {
+const client = new OpenAIClient(endpoint, new AzureKeyCredential(key));
+
+async function generateBlogContent(transcript) {
   const prompt = `
 You are a technical blog writer.
 
@@ -24,25 +27,27 @@ From the transcript below, create a complete blog post with these rules:
 Do not use generic section titles. Infer them from the actual transcript.
 
 Transcript:
-${transcriptText}
+${transcript}
 `;
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4",
-    messages: [{ role: "user", content: prompt }],
+  const messages = [
+    { role: "system", content: "You generate well-structured blog posts from transcripts." },
+    { role: "user", content: prompt }
+  ];
+
+  const result = await client.getChatCompletions(deployment, messages, {
+    maxTokens: 1500,
     temperature: 0.7
   });
 
-  return response.choices[0].message.content;
-}
+  const content = result.choices[0].message.content;
+  const lines = content.trim().split('\n');
 
-module.exports = { generateBlogContent };
+  // Assuming that first row title, begins with # or ## ...
+  const title = lines[0].replace(/^#+\s*/, '').trim();
+  const body = lines.slice(1).join('\n').trim();
 
-
-
-
-
-
+  return { title, body };
 }
 
 module.exports = { generateBlogContent };
