@@ -1,101 +1,39 @@
-openapi: 3.0.3
+swagger: '2.0'
 info:
   title: BlogPostMCP
   version: 1.0.0
-servers:
-  - url: https://blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
+host: blogpostmcpapp-fhd2aeghdca3hdak.canadacentral-01.azurewebsites.net
+basePath: /
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
 paths:
-  /v1/context:
+  /generate-blogpost:
     post:
-      summary: Generate blog post from transcript file or text (Model Context Protocol)
-      description: |
-        Accepts a transcript uploaded as file (`.txt`, `.srt`, `.vtt`, `.docx`) or as raw text in JSON.
-        Returns a structured blog post with title, markdown body, and URL to generated docx file on Azure Blob Storage.
-      operationId: generateBlogPostMCP
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-                  description: Transcript file (.txt, .srt, .vtt, .docx)
-          application/json:
-            schema:
-              type: object
-              properties:
-                transcriptText:
-                  type: string
-                  description: Transcript plain text as fallback if no file is uploaded
+      summary: Generate a blog post from transcript
+      description: Submit transcript text to generate a blog post.
+      operationId: generateBlogPost
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              transcriptText:
+                type: string
+                description: Transcript content as plain text or base64
       responses:
         '200':
-          description: Blog post generated successfully in MCP format
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  type:
-                    type: string
-                    example: blogpost
-                  title:
-                    type: string
-                    example: How to Build an MCP Server with Azure OpenAI
-                  content:
-                    type: string
-                    description: Markdown formatted blog body
-                  output:
-                    type: object
-                    properties:
-                      docxUrl:
-                        type: string
-                        format: uri
-                        description: URL to the generated docx blog post file
-                  metadata:
-                    type: object
-                    properties:
-                      source:
-                        type: string
-                        example: Azure OpenAI
-                      generatedAt:
-                        type: string
-                        format: date-time
-        '400':
-          description: Invalid request (bad file type, missing transcript, etc.)
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-
-  /v1/status:
-    get:
-      summary: Health check endpoint
-      responses:
-        '200':
-          description: Service is running
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: ok
-                  timestamp:
-                    type: string
-                    format: date-time
+          description: Blog post generated successfully
+          schema:
+            type: object
+            properties:
+              title:
+                type: string
+              url:
+                type: string
+securityDefinitions: {}
