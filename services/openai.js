@@ -43,11 +43,7 @@ ${transcript}
   const content = result.choices[0].message.content;
   const lines = content.trim().split('\n');
 
-<<<<<<< HEAD
-  // Assuming that first row title, begins with # or ## ...
-=======
   // Pretpostavljamo da je prvi red naslov, počinje sa # ili ## ...
->>>>>>> 1587e586c9c86ce6687d61f61d4f66f95314b6a5
   const title = lines[0].replace(/^#+\s*/, '').trim();
   const body = lines.slice(1).join('\n').trim();
 
